@@ -33,7 +33,7 @@ function buildRouter({ db, engine, reads }) {
 
   // ───────── Auth (public) ─────────
   write('post', '/auth/login', (req) => engine.login(req.body.username, req.body.pin));
-  write('post', '/auth/register', (req) => engine.register(req.body.name, req.body.username, req.body.pin));
+  write('post', '/auth/register', (req) => engine.register(req.body.name, req.body.username, req.body.pin, req.body.email));
 
   get('/settings', () => db.settings);
 

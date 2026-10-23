@@ -33,8 +33,8 @@ class ApiAuthRepository implements AuthRepository {
       _signIn(await _api.post('/auth/login', {'username': username, 'pin': pin}));
 
   @override
-  Future<AppUser> register({required String name, required String username, required String pin}) async =>
-      _signIn(await _api.post('/auth/register', {'name': name, 'username': username, 'pin': pin}));
+  Future<AppUser> register({required String name, required String username, required String email, required String pin}) async =>
+      _signIn(await _api.post('/auth/register', {'name': name, 'username': username, 'email': email, 'pin': pin}));
 
   @override
   Future<void> logout() async {

@@ -21,20 +21,30 @@ class Engine {
 
   // ───────────────────────────── Users ─────────────────────────────
 
+  // Accepts the username or the email.
   login(username, pin) {
-    const u = [...this.db.users.values()].find((x) => x.username === String(username || '').trim().toLowerCase());
-    if (!u || this.db.pins[u.username] !== pin) throw new BusinessError('اسم المستخدم أو الرقم السري غير صحيح');
+    const key = String(username || '').trim().toLowerCase();
+    const u = [...this.db.users.values()].find((x) => x.username === key || (x.email && x.email === key));
+    if (!u || this.db.pins[u.username] !== pin) throw new BusinessError('اسم المستخدم أو كلمة المرور غير صحيحة');
     return { user: u, token: this._issueToken(u) };
   }
 
-  register(name, username, pin) {
+  register(name, username, pin, email) {
+    const fullName = String(name || '').trim().replace(/\s+/g, ' ');
     const uname = String(username || '').trim().toLowerCase();
-    if (!String(name || '').trim()) throw new BusinessError('الاسم مطلوب');
-    if (!/^[a-z0-9_.]{3,}$/.test(uname)) throw new BusinessError('اسم المستخدم 3 أحرف على الأقل (حروف إنجليزية وأرقام فقط)');
-    if (!/^\d{4,}$/.test(String(pin || ''))) throw new BusinessError('الرقم السري 4 أرقام على الأقل');
-    if ([...this.db.users.values()].some((x) => x.username === uname)) throw new BusinessError('اسم المستخدم مستخدم بالفعل');
-    const u = this.db.put('users', { id: this.db.id('u'), name: String(name).trim(), username: uname });
-    this.db.pins[uname] = String(pin);
+    const mail = String(email || '').trim().toLowerCase();
+    const pass = String(pin || '');
+    if (!/^[\p{L} ]{3,40}$/u.test(fullName)) throw new BusinessError('الاسم من 3 إلى 40 حرف (حروف فقط بدون أرقام أو رموز)');
+    if (!/^[a-z][a-z0-9_.]{3,19}$/.test(uname)) throw new BusinessError('اسم المستخدم من 4 إلى 20 حرف، يبدأ بحرف إنجليزي (حروف وأرقام و _ . فقط)');
+    if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(mail)) throw new BusinessError('البريد الإلكتروني غير صحيح');
+    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S{8,}$/.test(pass)) {
+      throw new BusinessError('كلمة المرور 8 أحرف على الأقل وتحتوي على حرف كبير وحرف صغير ورقم ورمز');
+    }
+    const all = [...this.db.users.values()];
+    if (all.some((x) => x.username === uname)) throw new BusinessError('اسم المستخدم مستخدم بالفعل');
+    if (all.some((x) => x.email === mail)) throw new BusinessError('البريد الإلكتروني مستخدم بالفعل');
+    const u = this.db.put('users', { id: this.db.id('u'), name: fullName, username: uname, email: mail });
+    this.db.pins[uname] = pass;
     return { user: u, token: this._issueToken(u) };
   }
 

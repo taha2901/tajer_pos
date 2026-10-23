@@ -14,7 +14,7 @@ List<T> listOf<T>(Object? v, T Function(Json) f) => [for (final e in (v as List?
 
 // ───────────────────────────── Decoders ─────────────────────────────
 
-AppUser userFrom(Json j) => AppUser(id: j['id'], name: j['name'], username: j['username']);
+AppUser userFrom(Json j) => AppUser(id: j['id'], name: j['name'], username: j['username'], email: j['email'] ?? '');
 
 AppSettings settingsFrom(Json j, AppSettings base) => base.copyWith(
       storeName: j['storeName'],

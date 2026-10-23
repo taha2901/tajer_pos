@@ -26,12 +26,12 @@ class LocalAuthRepository implements AuthRepository {
       });
 
   @override
-  Future<AppUser> register({required String name, required String username, required String pin}) => _g.read(() {
+  Future<AppUser> register({required String name, required String username, required String email, required String pin}) => _g.read(() {
         final uname = username.trim().toLowerCase();
         if (_g.db.users.any((x) => x.username == uname)) {
           throw const BusinessException('اسم المستخدم مستخدم بالفعل');
         }
-        final u = AppUser(id: 'u${_g.db.users.length + 1}', name: name.trim(), username: uname);
+        final u = AppUser(id: 'u${_g.db.users.length + 1}', name: name.trim(), username: uname, email: email.trim().toLowerCase());
         _g.db.users.add(u);
         _g.db.pins[uname] = pin;
         _g.db.currentUser = u;

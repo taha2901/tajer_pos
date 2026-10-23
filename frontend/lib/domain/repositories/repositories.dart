@@ -12,7 +12,7 @@ abstract interface class AuthRepository {
   Future<AppUser?> currentUser();
 
   /// Creates a new account and signs it in.
-  Future<AppUser> register({required String name, required String username, required String pin});
+  Future<AppUser> register({required String name, required String username, required String email, required String pin});
 
   /// Demo accounts shown on the login screen.
   List<({String username, String pin, String name})> get demoAccounts;

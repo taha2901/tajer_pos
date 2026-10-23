@@ -6,7 +6,6 @@ import '../data/local/local_read_models.dart';
 import '../data/local/local_repositories.dart';
 import '../data/local/local_store.dart';
 import '../data/local/pos_engine.dart';
-import '../data/local/seeder.dart';
 import '../data/remote/api_client.dart';
 import '../data/remote/api_repositories.dart';
 import '../domain/repositories/repositories.dart';
@@ -46,7 +45,7 @@ class AppDependencies {
       reports: LocalReportRepository(g),
       alerts: LocalAlertRepository(g),
       search: LocalSearchRepository(g),
-      bootstrap: () async => Seeder(store, engine).run(),
+      bootstrap: () async {},
     );
   }
 

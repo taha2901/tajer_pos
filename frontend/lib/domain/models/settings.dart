@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart' show ThemeMode;
 
 class AppUser {
-  const AppUser({required this.id, required this.name, required this.username});
+  const AppUser({required this.id, required this.name, required this.username, this.email = ''});
   final String id;
   final String name;
   final String username;
+  final String email;
 }
 
 class AppSettings {

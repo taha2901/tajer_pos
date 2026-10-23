@@ -80,17 +80,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextFormField(
                       controller: _user,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(labelText: 'اسم المستخدم', prefixIcon: Icon(Icons.person_outline_rounded)),
+                      decoration: const InputDecoration(labelText: 'اسم المستخدم أو البريد الإلكتروني', prefixIcon: Icon(Icons.person_outline_rounded)),
                       validator: requiredText,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _pin,
                       obscureText: _obscure,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.visiblePassword,
+                      autocorrect: false,
                       onFieldSubmitted: (_) => _submit(),
                       decoration: InputDecoration(
-                        labelText: 'الرقم السري',
+                        labelText: 'كلمة المرور',
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),

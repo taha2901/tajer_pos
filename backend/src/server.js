@@ -26,11 +26,10 @@ async function main() {
   const reads = new Reads(db, engine);
 
   const seeder = new Seeder(db, engine);
-  if (db.isEmpty && process.env.SEED_DEMO !== 'false') {
+  // Starts empty: the owner registers and enters everything. Set SEED_DEMO=true for demo data.
+  if (db.isEmpty && process.env.SEED_DEMO === 'true') {
     console.log('Empty database — generating demo data...');
     seeder.run();
-  } else {
-    seeder.ensureUsers();
   }
   await db.flush();
 

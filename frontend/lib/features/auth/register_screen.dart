@@ -19,6 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _user = TextEditingController();
+  final _email = TextEditingController();
   final _pin = TextEditingController();
   final _confirm = TextEditingController();
   bool _busy = false;
@@ -29,6 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _name.dispose();
     _user.dispose();
+    _email.dispose();
     _pin.dispose();
     _confirm.dispose();
     super.dispose();
@@ -41,7 +43,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _error = null;
     });
     try {
-      await context.read<SessionCubit>().register(name: _name.text, username: _user.text, pin: _pin.text);
+      await context.read<SessionCubit>().register(
+            name: _name.text.trim().replaceAll(RegExp(r'\s+'), ' '),
+            username: _user.text.trim(),
+            email: _email.text.trim(),
+            pin: _pin.text,
+          );
       if (mounted) context.pop();
     } catch (e) {
       if (mounted) setState(() => _error = errorMessage(e));
@@ -50,18 +57,42 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  String? _validateName(String? v) {
+    final req = requiredText(v);
+    if (req != null) return req;
+    final name = v!.trim().replaceAll(RegExp(r'\s+'), ' ');
+    if (!RegExp(r'^[\p{L} ]{3,40}$', unicode: true).hasMatch(name)) return 'من 3 إلى 40 حرف (حروف فقط بدون أرقام أو رموز)';
+    return null;
+  }
+
   String? _validateUsername(String? v) {
     final req = requiredText(v);
     if (req != null) return req;
-    if (!RegExp(r'^[a-zA-Z0-9_.]{3,}$').hasMatch(v!.trim())) return '3 أحرف على الأقل (حروف إنجليزية وأرقام فقط)';
+    if (!RegExp(r'^[a-zA-Z][a-zA-Z0-9_.]{3,19}$').hasMatch(v!.trim())) {
+      return 'من 4 إلى 20 حرف، يبدأ بحرف إنجليزي (حروف وأرقام و _ . فقط)';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String? v) {
+    final req = requiredText(v);
+    if (req != null) return req;
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(v!.trim())) return 'البريد الإلكتروني غير صحيح';
     return null;
   }
 
   String? _validatePin(String? v) {
     final req = requiredText(v);
     if (req != null) return req;
-    if (!RegExp(r'^\d{4,}$').hasMatch(v!)) return 'الرقم السري 4 أرقام على الأقل';
-    return null;
+    final missing = [
+      if (v!.length < 8) '8 أحرف على الأقل',
+      if (!RegExp(r'[A-Z]').hasMatch(v)) 'حرف كبير (A-Z)',
+      if (!RegExp(r'[a-z]').hasMatch(v)) 'حرف صغير (a-z)',
+      if (!RegExp(r'\d').hasMatch(v)) 'رقم',
+      if (!RegExp(r'[^A-Za-z0-9]').hasMatch(v)) 'رمز (مثل @ # !)',
+      if (RegExp(r'\s').hasMatch(v)) 'بدون مسافات',
+    ];
+    return missing.isEmpty ? null : 'كلمة المرور يجب أن تحتوي على: ${missing.join('، ')}';
   }
 
   @override
@@ -89,23 +120,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       controller: _name,
                       textInputAction: TextInputAction.next,
                       decoration: const InputDecoration(labelText: 'الاسم', prefixIcon: Icon(Icons.badge_outlined)),
-                      validator: requiredText,
+                      validator: _validateName,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _user,
                       textInputAction: TextInputAction.next,
+                      autocorrect: false,
                       decoration: const InputDecoration(labelText: 'اسم المستخدم', prefixIcon: Icon(Icons.person_outline_rounded)),
                       validator: _validateUsername,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
+                      controller: _email,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.emailAddress,
+                      autocorrect: false,
+                      textDirection: TextDirection.ltr,
+                      decoration: const InputDecoration(labelText: 'البريد الإلكتروني', prefixIcon: Icon(Icons.email_outlined)),
+                      validator: _validateEmail,
+                    ),
+                    const SizedBox(height: 14),
+                    TextFormField(
                       controller: _pin,
                       obscureText: _obscure,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.visiblePassword,
+                      autocorrect: false,
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(
-                        labelText: 'الرقم السري',
+                        labelText: 'كلمة المرور',
+                        helperText: '8 أحرف على الأقل: حرف كبير وصغير ورقم ورمز',
+                        errorMaxLines: 3,
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
                         suffixIcon: IconButton(
                           icon: Icon(_obscure ? Icons.visibility_outlined : Icons.visibility_off_outlined),
@@ -118,10 +163,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextFormField(
                       controller: _confirm,
                       obscureText: _obscure,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.visiblePassword,
+                      autocorrect: false,
                       onFieldSubmitted: (_) => _submit(),
-                      decoration: const InputDecoration(labelText: 'تأكيد الرقم السري', prefixIcon: Icon(Icons.lock_outline_rounded)),
-                      validator: (v) => v != _pin.text ? 'الرقم السري غير متطابق' : null,
+                      decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور', prefixIcon: Icon(Icons.lock_outline_rounded)),
+                      validator: (v) => v != _pin.text ? 'كلمة المرور غير متطابقة' : null,
                     ),
                     if (_error != null) ...[
                       const SizedBox(height: 14),

@@ -42,8 +42,8 @@ class SessionCubit extends Cubit<SessionState> {
     emit(state.copyWith(user: () => user, settings: await _settings.load()));
   }
 
-  Future<void> register({required String name, required String username, required String pin}) async {
-    final user = await _auth.register(name: name, username: username, pin: pin);
+  Future<void> register({required String name, required String username, required String email, required String pin}) async {
+    final user = await _auth.register(name: name, username: username, email: email, pin: pin);
     emit(state.copyWith(user: () => user, settings: await _settings.load()));
   }
 
