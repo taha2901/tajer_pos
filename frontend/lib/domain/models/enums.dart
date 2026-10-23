@@ -26,7 +26,8 @@ enum PaymentMethod {
   const PaymentMethod(this.label);
   final String label;
 
-  MoneyAccount get account => this == cash ? MoneyAccount.cash : MoneyAccount.bank;
+  /// Every method moves the same drawer (no separate bank account).
+  MoneyAccount get account => MoneyAccount.cash;
 }
 
 enum MoneyAccount {

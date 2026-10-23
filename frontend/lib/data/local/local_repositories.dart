@@ -308,6 +308,12 @@ class LocalInvoiceRepository implements InvoiceRepository {
       _g.read(() => _g.db.invoices[id] ?? (throw const NotFoundException('الفاتورة غير موجودة')));
 
   @override
+  Future<Invoice> setFeedback(String invoiceId, {required int rating, required String feedback}) => _g.write(() {
+        final inv = _g.db.invoices[invoiceId] ?? (throw const NotFoundException('الفاتورة غير موجودة'));
+        return _g.db.invoices[invoiceId] = inv.copyWith(rating: rating, feedback: feedback.trim());
+      }, {DataTopic.invoices});
+
+  @override
   Future<ReturnDoc> createReturn(ReturnDraft draft) => _g.write(() => _g.engine.createReturn(draft), _topics);
 
   @override

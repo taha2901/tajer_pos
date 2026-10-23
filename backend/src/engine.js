@@ -353,7 +353,7 @@ class Engine {
       }
     }
 
-    const cashPaid = payments.filter((p) => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
+    const cashPaid = payments.reduce((s, p) => s + p.amount, 0);
     if (cashPaid > EPS) {
       const session = this._requireSession();
       if (!isSale) this._requireCash(session, cashPaid);
@@ -455,7 +455,7 @@ class Engine {
     }
 
     const s = M.settlement(inv, qty);
-    if (s.cashRefund > EPS && refundMethod === 'cash') {
+    if (s.cashRefund > EPS) {
       const session = this._requireSession();
       if (isSale) this._requireCash(session, s.cashRefund);
     }
@@ -517,6 +517,20 @@ class Engine {
     return doc;
   }
 
+  /// Optional customer feedback on a sale: rating 0–5 (0 = none) and a comment.
+  setFeedback(invoiceId, rating, comment) {
+    const inv = this.db.invoices.get(invoiceId);
+    if (!inv) throw new NotFoundError('الفاتورة غير موجودة');
+    if (inv.type !== 'sale') throw new BusinessError('رأي العميل متاح لفواتير البيع فقط');
+    const r = Math.round(Number(rating) || 0);
+    if (r < 0 || r > 5) throw new BusinessError('التقييم من 1 إلى 5');
+    const text = String(comment || '').trim();
+    if (text.length > 500) throw new BusinessError('الملاحظة طويلة جداً (500 حرف كحد أقصى)');
+    inv.rating = r;
+    inv.feedback = text;
+    return this.db.put('invoices', inv);
+  }
+
   // ───────────────────────────── Payments ─────────────────────────────
 
   addPayment(i, at) {
@@ -524,10 +538,8 @@ class Engine {
     const party = this._party(i.partyId);
     const amount = r2(i.amount || 0);
     if (amount <= 0) throw new BusinessError('أدخل مبلغاً أكبر من صفر');
-    if (i.method === 'cash') {
-      const session = this._requireSession();
-      if (!M.isCustomer(party)) this._requireCash(session, amount);
-    }
+    const session = this._requireSession();
+    if (!M.isCustomer(party)) this._requireCash(session, amount);
     const cust = M.isCustomer(party);
     const id = this.db.id('pay');
     const number = this.db.number(cust ? 'RC' : 'PV', { pad: 4 });
@@ -618,13 +630,9 @@ class Engine {
     if (!M.MANUAL_TX.includes(i.type)) throw new BusinessError('نوع حركة غير مسموح');
     if (!(i.amount > 0)) throw new BusinessError('أدخل مبلغاً أكبر من صفر');
     if (i.type === 'expense' && !i.category) throw new BusinessError('اختر بند المصروف');
-    const account = i.account || 'cash';
-    if (account === 'cash') {
-      const s = this._requireSession();
-      if (!M.txIsIn(i.type)) this._requireCash(s, i.amount);
-    } else if (!M.txIsIn(i.type) && i.amount > this.bankBalance + EPS) {
-      throw new BusinessError(`رصيد البنك غير كافٍ (${F.money(this.bankBalance)})`, Codes.insufficientCash);
-    }
+    const account = 'cash';
+    const s = this._requireSession();
+    if (!M.txIsIn(i.type)) this._requireCash(s, i.amount);
     const note = String(i.note || '').trim() || i.category || M.txLabel(i.type);
     return this._addTx(i.type, account, i.amount, { at, refNumber: i.reference || null, note, category: i.category || null });
   }

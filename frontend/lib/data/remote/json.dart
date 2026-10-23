@@ -159,6 +159,8 @@ Invoice invoiceFrom(Json j) => Invoice(
       user: _s(j['user']),
       note: _s(j['note']),
       supplierRef: _s(j['supplierRef']),
+      rating: _d(j['rating']).round(),
+      feedback: _s(j['feedback']),
     );
 
 ReturnDoc returnFrom(Json j) => ReturnDoc(

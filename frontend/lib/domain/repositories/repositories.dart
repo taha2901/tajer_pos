@@ -62,6 +62,7 @@ abstract interface class InvoiceRepository {
   Future<Invoice> create(InvoiceDraft draft);
   Future<List<Invoice>> getInvoices(InvoiceQuery query);
   Future<Invoice> getInvoice(String id);
+  Future<Invoice> setFeedback(String invoiceId, {required int rating, required String feedback});
   Future<ReturnDoc> createReturn(ReturnDraft draft);
   Future<List<ReturnDoc>> getReturns({InvoiceType? type, String? invoiceId, String? partyId});
   Future<ReturnDoc> getReturn(String id);

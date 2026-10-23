@@ -91,6 +91,7 @@ function buildRouter({ db, engine, reads }) {
   get('/invoices', (req) => reads.invoices({ ...req.query, from: date(req.query.from), to: date(req.query.to) }));
   get('/invoices/:id', (req) => reads.invoice(req.params.id));
   write('post', '/invoices', (req) => engine.createInvoice(req.body));
+  write('post', '/invoices/:id/feedback', (req) => engine.setFeedback(req.params.id, req.body.rating, req.body.feedback));
   get('/returns', (req) => reads.returns(req.query));
   get('/returns/:id', (req) => reads.returnDoc(req.params.id));
   write('post', '/returns', (req) => engine.createReturn(req.body));

@@ -355,7 +355,7 @@ class PosEngine {
       }
     }
 
-    final cashPaid = d.payments.where((p) => p.method == PaymentMethod.cash).fold(0.0, (s, p) => s + p.amount);
+    final cashPaid = d.payments.fold(0.0, (s, p) => s + p.amount);
     if (cashPaid > _eps) {
       final session = _requireSession();
       if (!isSale) _requireCash(session, cashPaid);
@@ -464,7 +464,7 @@ class PosEngine {
     }
 
     final s = ReturnSettlement.of(inv, qty);
-    if (s.cashRefund > _eps && d.refundMethod == PaymentMethod.cash) {
+    if (s.cashRefund > _eps) {
       final session = _requireSession();
       if (isSale) _requireCash(session, s.cashRefund);
     }
@@ -545,10 +545,8 @@ class PosEngine {
     final party = _party(i.partyId);
     final amount = r2(i.amount);
     if (amount <= 0) throw const BusinessException('أدخل مبلغاً أكبر من صفر');
-    if (i.method == PaymentMethod.cash) {
-      final session = _requireSession();
-      if (!party.isCustomer) _requireCash(session, amount);
-    }
+    final session = _requireSession();
+    if (!party.isCustomer) _requireCash(session, amount);
 
     final id = db.id('pay');
     final number = db.number(party.isCustomer ? 'RC' : 'PV', pad: 4);
@@ -642,14 +640,10 @@ class PosEngine {
     if (i.type == TxType.expense && (i.category == null || i.category!.isEmpty)) {
       throw const BusinessException('اختر بند المصروف');
     }
-    if (i.account == MoneyAccount.cash) {
-      final s = _requireSession();
-      if (!i.type.isIn) _requireCash(s, i.amount);
-    } else if (!i.type.isIn && i.amount > bankBalance + _eps) {
-      throw BusinessException('رصيد البنك غير كافٍ (${Fmt.money(bankBalance)})', code: ErrorCodes.insufficientCash);
-    }
+    final s = _requireSession();
+    if (!i.type.isIn) _requireCash(s, i.amount);
     final note = i.note.trim().isEmpty ? (i.category ?? i.type.label) : i.note.trim();
-    return _addTx(i.type, i.account, i.amount,
+    return _addTx(i.type, MoneyAccount.cash, i.amount,
         at: at, refNumber: i.reference.isEmpty ? null : i.reference, note: note, category: i.category);
   }
 

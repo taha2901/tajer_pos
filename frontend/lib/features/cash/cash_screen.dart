@@ -79,7 +79,6 @@ class _Closed extends StatelessWidget {
                 compact: true,
               ),
               InfoRow('آخر رصيد مُقفل', Fmt.money(overview.lastClosedCash), bold: true),
-              InfoRow('رصيد البنك', Fmt.money(overview.bankBalance)),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -108,12 +107,12 @@ class _Open extends StatelessWidget {
     final pal = context.palette;
     final s = drawer.session;
     final rows = <(TxType, String)>[
-      (TxType.sale, 'مبيعات نقدية'),
+      (TxType.sale, 'المبيعات (نقدي + تحويل)'),
       (TxType.customerPayment, 'تحصيلات العملاء'),
       (TxType.purchaseRefund, 'استردادات من موردين'),
       (TxType.deposit, 'إضافة رأس مال'),
       (TxType.cashIn, 'إيداعات أخرى'),
-      (TxType.purchase, 'مشتريات نقدية'),
+      (TxType.purchase, 'المشتريات (نقدي + تحويل)'),
       (TxType.supplierPayment, 'مدفوعات الموردين'),
       (TxType.saleRefund, 'مرتجعات للعملاء'),
       (TxType.expense, 'المصروفات'),
@@ -135,7 +134,7 @@ class _Open extends StatelessWidget {
                   children: [
                     Icon(Icons.point_of_sale_rounded, color: context.colors.onPrimary.withValues(alpha: 0.85), size: 18),
                     const SizedBox(width: 6),
-                    Text('النقدية المتوقعة بالدرج', style: context.text.labelLarge?.copyWith(color: context.colors.onPrimary.withValues(alpha: 0.85))),
+                    Text('رصيد الخزنة', style: context.text.labelLarge?.copyWith(color: context.colors.onPrimary.withValues(alpha: 0.85))),
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -215,22 +214,6 @@ class _Open extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-          child: AppCard(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            onTap: () => context.push(const TransactionsScreen(account: MoneyAccount.bank)),
-            child: Row(
-              children: [
-                Icon(Icons.account_balance_outlined, color: pal.info),
-                const SizedBox(width: 10),
-                Expanded(child: Text('رصيد البنك / البطاقات', style: context.text.titleSmall)),
-                Text(Fmt.money(overview.bankBalance), style: context.text.titleSmall),
-                const Icon(Icons.chevron_left),
-              ],
-            ),
-          ),
         ),
         SectionHeader(
           'حركات الوردية (${drawer.transactions.length})',

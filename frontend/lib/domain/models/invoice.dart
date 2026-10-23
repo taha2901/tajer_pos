@@ -66,6 +66,8 @@ class Invoice {
     this.returnedAmount = 0,
     this.note = '',
     this.supplierRef = '',
+    this.rating = 0,
+    this.feedback = '',
   });
 
   final String id;
@@ -89,6 +91,11 @@ class Invoice {
 
   /// Supplier's own invoice number (purchases only).
   final String supplierRef;
+
+  /// Optional customer feedback (sales only): rating 1–5, 0 = not rated.
+  final int rating;
+  final String feedback;
+  bool get hasFeedback => rating > 0 || feedback.isNotEmpty;
 
   double get subtotal => lines.fold(0, (s, l) => s + l.total);
   double get total => subtotal - discount;
@@ -122,6 +129,8 @@ class Invoice {
     List<InvoiceLine>? lines,
     double? paid,
     double? returnedAmount,
+    int? rating,
+    String? feedback,
   }) =>
       Invoice(
         id: id,
@@ -139,6 +148,8 @@ class Invoice {
         user: user,
         note: note,
         supplierRef: supplierRef,
+        rating: rating ?? this.rating,
+        feedback: feedback ?? this.feedback,
       );
 }
 

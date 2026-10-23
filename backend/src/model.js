@@ -2,7 +2,8 @@
 
 const PARTY_LABEL = { customer: 'عميل', supplier: 'مورد' };
 const METHOD_LABEL = { cash: 'نقدي', card: 'بطاقة', bank: 'تحويل بنكي' };
-const methodAccount = (m) => (m === 'cash' ? 'cash' : 'bank');
+// Every payment method (cash, card, transfer) moves the same drawer: no separate bank account.
+const methodAccount = () => 'cash';
 const INVOICE = {
   sale: { label: 'فاتورة بيع', prefix: 'S', partyType: 'customer' },
   purchase: { label: 'فاتورة شراء', prefix: 'P', partyType: 'supplier' },

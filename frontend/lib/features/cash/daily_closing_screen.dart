@@ -180,7 +180,7 @@ class _SummaryCard extends StatelessWidget {
           Text('${d.session.number} • فُتحت ${Fmt.relative(d.session.openedAt)}', style: context.text.bodySmall),
           const SizedBox(height: 8),
           InfoRow('رصيد الافتتاح', Fmt.money(d.session.openingBalance)),
-          InfoRow('مبيعات نقدية', '+ ${Fmt.money(d.amount(TxType.sale))}', valueColor: pal.success),
+          InfoRow('المبيعات (نقدي + تحويل)', '+ ${Fmt.money(d.amount(TxType.sale))}', valueColor: pal.success),
           InfoRow('تحصيلات العملاء', '+ ${Fmt.money(d.amount(TxType.customerPayment))}', valueColor: pal.success),
           InfoRow('إيداعات أخرى', '+ ${Fmt.money(d.amount(TxType.cashIn) + d.amount(TxType.deposit) + d.amount(TxType.purchaseRefund))}', valueColor: pal.success),
           InfoRow('مشتريات ومدفوعات موردين', '- ${Fmt.money(d.amount(TxType.purchase) + d.amount(TxType.supplierPayment))}', valueColor: pal.danger),

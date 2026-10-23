@@ -24,7 +24,7 @@ class _CashTxForm extends StatefulWidget {
 
 class _CashTxFormState extends State<_CashTxForm> {
   late TxType _type = widget.initial;
-  MoneyAccount _account = MoneyAccount.cash;
+  final MoneyAccount _account = MoneyAccount.cash;
   String? _category;
   final _amount = TextEditingController();
   final _note = TextEditingController();
@@ -135,14 +135,6 @@ class _CashTxFormState extends State<_CashTxForm> {
                   ],
                 ),
               ],
-              const SizedBox(height: 14),
-              ChipsRow<MoneyAccount>(
-                padding: EdgeInsets.zero,
-                values: MoneyAccount.values,
-                selected: _account,
-                label: (a) => a == MoneyAccount.cash ? 'من/إلى الخزنة' : 'حساب البنك',
-                onSelected: (a) => setState(() => _account = a),
-              ),
               const SizedBox(height: 14),
               TextFormField(controller: _note, decoration: const InputDecoration(labelText: 'البيان / ملاحظة')),
               const SizedBox(height: 12),

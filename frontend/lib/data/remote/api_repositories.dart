@@ -212,6 +212,10 @@ class ApiInvoiceRepository implements InvoiceRepository {
       _g.write(() async => invoiceFrom(await _api.post('/invoices', invoiceDraftToJson(draft))), _topics);
 
   @override
+  Future<Invoice> setFeedback(String invoiceId, {required int rating, required String feedback}) => _g.write(
+      () async => invoiceFrom(await _api.post('/invoices/$invoiceId/feedback', {'rating': rating, 'feedback': feedback})), {DataTopic.invoices});
+
+  @override
   Future<List<Invoice>> getInvoices(InvoiceQuery q) async => listOf(
       await _api.get('/invoices', {
         'type': q.type.name,

@@ -150,7 +150,7 @@ class _Body extends StatelessWidget {
             ],
           ),
         ),
-        const SectionHeader('التدفق النقدي (الخزنة + البنك)'),
+        const SectionHeader('التدفق النقدي (الخزنة)'),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AppCard(
@@ -178,7 +178,6 @@ class _Body extends StatelessWidget {
                 InfoRow('صافي التدفق', Fmt.money(r.netFlow), bold: true),
                 const Divider(height: 18),
                 InfoRow('رصيد الخزنة الحالي', Fmt.money(r.cashBalance)),
-                InfoRow('رصيد البنك الحالي', Fmt.money(r.bankBalance)),
               ],
             ),
           ),

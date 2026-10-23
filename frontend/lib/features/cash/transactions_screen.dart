@@ -91,13 +91,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                   ),
                   const SizedBox(height: 6),
                 ],
-                if (widget.type == null)
-                  ChipsRow<MoneyAccount?>(
-                    values: const [null, MoneyAccount.cash, MoneyAccount.bank],
-                    selected: cubit.filter.account,
-                    label: (a) => a?.label ?? 'كل الحسابات',
-                    onSelected: (a) => cubit.setFilter(cubit.filter.copyWith(account: () => a)),
-                  ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
                   child: Row(

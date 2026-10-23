@@ -200,11 +200,99 @@ class _Body extends StatelessWidget {
             const SectionHeader('ملاحظات'),
             Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: AppCard(child: Text(i.note))),
           ],
+          if (isSale) ...[
+            SectionHeader('رأي العميل', actionLabel: i.hasFeedback ? 'تعديل' : 'إضافة', onAction: () => showFeedbackSheet(context, i)),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: AppCard(
+                onTap: () => showFeedbackSheet(context, i),
+                child: i.hasFeedback
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (i.rating > 0) _Stars(rating: i.rating),
+                          if (i.rating > 0 && i.feedback.isNotEmpty) const SizedBox(height: 6),
+                          if (i.feedback.isNotEmpty) Text(i.feedback),
+                        ],
+                      )
+                    : Text('اختياري — سجّل تقييم العميل أو ملاحظته على الفاتورة', style: context.text.bodySmall?.copyWith(color: p.muted)),
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
         ],
       ),
     );
   }
+}
+
+class _Stars extends StatelessWidget {
+  const _Stars({required this.rating, this.size = 22, this.onTap});
+  final int rating;
+  final double size;
+  final ValueChanged<int>? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = context.palette.warning;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var n = 1; n <= 5; n++)
+          InkResponse(
+            onTap: onTap == null ? null : () => onTap!(n == rating ? 0 : n),
+            radius: size,
+            child: Padding(
+              padding: EdgeInsets.all(onTap == null ? 0 : 4),
+              child: Icon(n <= rating ? Icons.star_rounded : Icons.star_outline_rounded, color: color, size: size),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Optional customer rating + comment on a sale.
+Future<void> showFeedbackSheet(BuildContext context, Invoice invoice) {
+  final ctrl = TextEditingController(text: invoice.feedback);
+  var rating = invoice.rating;
+  return showAppSheet<void>(
+    context,
+    title: 'رأي العميل',
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setState) => Padding(
+        padding: EdgeInsets.fromLTRB(20, 0, 20, 20 + MediaQuery.viewInsetsOf(ctx).bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text('التقييم (اختياري)', style: ctx.text.labelLarge),
+            const SizedBox(height: 6),
+            Center(child: _Stars(rating: rating, size: 34, onTap: (n) => setState(() => rating = n))),
+            const SizedBox(height: 14),
+            TextField(
+              controller: ctrl,
+              maxLines: 3,
+              maxLength: 500,
+              decoration: const InputDecoration(labelText: 'ملاحظة العميل (اختياري)', alignLabelWithHint: true),
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: () async {
+                final saved = await runTask(
+                  ctx,
+                  () => ctx.read<InvoiceRepository>().setFeedback(invoice.id, rating: rating, feedback: ctrl.text),
+                  success: 'تم حفظ رأي العميل',
+                );
+                if (saved != null && ctx.mounted) Navigator.pop(ctx);
+              },
+              child: const Text('حفظ'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 IconData _methodIcon(PaymentMethod m) => switch (m) {
