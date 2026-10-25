@@ -366,3 +366,26 @@ class ApiSearchRepository implements SearchRepository {
   @override
   Future<void> clearRecent() => _api.delete('/search/recent');
 }
+
+class ApiShoppingListRepository implements ShoppingListRepository {
+  ApiShoppingListRepository(this._g);
+  final ApiGateway _g;
+  ApiClient get _api => _g.api;
+
+  static const _topics = {DataTopic.shopping};
+
+  @override
+  Future<List<ShoppingItem>> getItems({String? supplierId}) async =>
+      listOf(await _api.get('/shopping', {'supplierId': supplierId}), shoppingItemFrom);
+
+  @override
+  Future<ShoppingItem> add(ShoppingItemInput input) =>
+      _g.write(() async => shoppingItemFrom(await _api.post('/shopping', shoppingInputToJson(input))), _topics);
+
+  @override
+  Future<ShoppingItem> update(String id, ShoppingItemInput input) =>
+      _g.write(() async => shoppingItemFrom(await _api.put('/shopping/$id', shoppingInputToJson(input))), _topics);
+
+  @override
+  Future<void> remove(List<String> ids) => _g.write(() => _api.post('/shopping/remove', {'ids': ids}), _topics);
+}

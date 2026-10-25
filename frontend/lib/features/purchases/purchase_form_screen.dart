@@ -34,8 +34,14 @@ enum _PayMode {
 
 /// Create a purchase invoice from a supplier.
 class PurchaseFormScreen extends StatefulWidget {
-  const PurchaseFormScreen({super.key, this.supplier, this.product, this.newBarcode});
+  const PurchaseFormScreen({super.key, this.supplier, this.product, this.newBarcode, this.items = const [], this.onSaved});
   final Party? supplier;
+
+  /// Pre-filled lines (e.g. from the shortages list).
+  final List<(Product, double)> items;
+
+  /// Called after the invoice is saved, before showing the receipt.
+  final Future<void> Function(Invoice invoice)? onSaved;
 
   /// Pre-filled product (e.g. reorder from a low-stock alert).
   final Product? product;
@@ -63,6 +69,9 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
     final p = widget.product;
     if (p != null) {
       _lines.add(_Line(p, qty: (p.minStock * 2 - p.stock).clamp(1, double.infinity).roundToDouble(), cost: p.purchasePrice));
+    }
+    for (final (product, qty) in widget.items) {
+      _lines.add(_Line(product, qty: qty, cost: product.purchasePrice));
     }
     final code = widget.newBarcode;
     if (code != null) WidgetsBinding.instance.addPostFrameCallback((_) => _addNewProduct(barcode: code));
@@ -238,6 +247,12 @@ class _PurchaseFormScreenState extends State<PurchaseFormScreen> {
     final repo = context.read<InvoiceRepository>();
     final inv = await submitWithRecovery<Invoice>(context, (_) => repo.create(draft));
     if (inv == null || !mounted) return;
+    try {
+      await widget.onSaved?.call(inv);
+    } catch (_) {
+      // The invoice is saved; a failed follow-up must not block the receipt.
+    }
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ReceiptScreen(invoice: inv, justCreated: true)));
   }
 

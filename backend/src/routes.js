@@ -1,5 +1,6 @@
 const express = require('express');
 const { Seeder } = require('./seeder');
+const { ShoppingList } = require('./shopping');
 
 const SETTINGS_KEYS = ['storeName', 'storePhone', 'storeAddress', 'invoiceFooter', 'allowNegativeStock', 'largeExpenseThreshold', 'debtDueDays', 'closingReminderHour', 'themeMode'];
 
@@ -112,6 +113,13 @@ function buildRouter({ db, engine, reads }) {
   get('/reports/trade/:type', (req) => reads.tradeReport(req.params.type, { ...req.query, from: date(req.query.from), to: date(req.query.to) }));
   get('/reports/stock', (req) => reads.stockReport({ ...req.query, from: date(req.query.from), to: date(req.query.to) }));
   get('/reports/financial', (req) => reads.financialReport(date(req.query.from), date(req.query.to)));
+
+  // ───────── Shortages list ─────────
+  const shopping = new ShoppingList(db);
+  get('/shopping', (req) => shopping.list(req.query));
+  write('post', '/shopping', (req) => shopping.add(req.body, req.user));
+  write('put', '/shopping/:id', (req) => shopping.update(req.params.id, req.body));
+  write('post', '/shopping/remove', (req) => shopping.remove(req.body.ids || []));
 
   // ───────── Alerts ─────────
   get('/alerts', () => reads.alerts());

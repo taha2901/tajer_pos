@@ -25,6 +25,7 @@ class AppDependencies {
     required this.reports,
     required this.alerts,
     required this.search,
+    required this.shopping,
     required this._bootstrap,
     this.api,
   });
@@ -45,6 +46,7 @@ class AppDependencies {
       reports: LocalReportRepository(g),
       alerts: LocalAlertRepository(g),
       search: LocalSearchRepository(g),
+      shopping: LocalShoppingListRepository(g),
       bootstrap: () async {},
     );
   }
@@ -63,6 +65,7 @@ class AppDependencies {
       reports: ApiReportRepository(g),
       alerts: ApiAlertRepository(g),
       search: ApiSearchRepository(g),
+      shopping: ApiShoppingListRepository(g),
       bootstrap: () async {},
       api: api,
     );
@@ -80,6 +83,7 @@ class AppDependencies {
   final ReportRepository reports;
   final AlertRepository alerts;
   final SearchRepository search;
+  final ShoppingListRepository shopping;
   final Future<void> Function() _bootstrap;
 
   /// Loads initial data (mock seed today, warm caches / token refresh later).
@@ -97,5 +101,6 @@ class AppDependencies {
         RepositoryProvider<ReportRepository>.value(value: reports),
         RepositoryProvider<AlertRepository>.value(value: alerts),
         RepositoryProvider<SearchRepository>.value(value: search),
+        RepositoryProvider<ShoppingListRepository>.value(value: shopping),
       ];
 }

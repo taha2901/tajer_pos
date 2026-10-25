@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 
 /// Tables persisted as one MongoDB collection each (document _id = entity id).
-const TABLES = ['categories', 'products', 'parties', 'invoices', 'returns', 'payments', 'ledger', 'stockMoves', 'txs', 'sessions', 'users'];
+const TABLES = ['categories', 'products', 'parties', 'invoices', 'returns', 'payments', 'ledger', 'stockMoves', 'txs', 'sessions', 'users', 'shopping'];
 
 const DEFAULT_SETTINGS = {
   storeName: 'سوبر ماركت التاجر',

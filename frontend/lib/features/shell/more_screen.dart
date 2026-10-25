@@ -12,6 +12,7 @@ import '../invoices/invoices_list_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../parties/parties_screen.dart';
 import '../pos/cart_cubit.dart';
+import '../purchases/shopping_list_screen.dart';
 import '../reports/reports_screen.dart';
 import '../settings/settings_screen.dart';
 
@@ -25,6 +26,7 @@ class MoreScreen extends StatelessWidget {
       (
         'العمليات',
         [
+          (Icons.playlist_add_check_rounded, 'النواقص', 'ما تحتاج طلبه من الموردين', const ShoppingListScreen()),
           (Icons.local_shipping_outlined, 'المشتريات', 'فواتير الشراء والمرتجعات', const InvoicesListScreen(type: InvoiceType.purchase)),
           (Icons.receipt_long_outlined, 'فواتير البيع', 'السجل والمرتجعات', const InvoicesListScreen(type: InvoiceType.sale)),
           (Icons.store_mall_directory_outlined, 'الموردين', 'الحسابات والمستحقات', const PartiesScreen(type: PartyType.supplier)),

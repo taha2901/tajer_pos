@@ -21,6 +21,7 @@ class LocalStore {
   final pins = <String, String>{...demoPins};
   final readAlerts = <String>{};
   final recentSearches = <String>[];
+  final shopping = <ShoppingItem>[];
 
   final _seq = <String, int>{};
 
@@ -43,6 +44,7 @@ class LocalStore {
   void clear() {
     categories.clear();
     products.clear();
+    shopping.clear();
     parties.clear();
     invoices.clear();
     returns.clear();

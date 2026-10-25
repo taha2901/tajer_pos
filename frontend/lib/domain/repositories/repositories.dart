@@ -100,3 +100,14 @@ abstract interface class SearchRepository {
   Future<void> removeRecent(String query);
   Future<void> clearRecent();
 }
+
+/// Shortages list: what to order from suppliers. Anyone signed in can add.
+abstract interface class ShoppingListRepository {
+  /// With [supplierId]: that supplier's items plus items with no supplier.
+  Future<List<ShoppingItem>> getItems({String? supplierId});
+
+  /// Adding a product already on the list increases its quantity.
+  Future<ShoppingItem> add(ShoppingItemInput input);
+  Future<ShoppingItem> update(String id, ShoppingItemInput input);
+  Future<void> remove(List<String> ids);
+}

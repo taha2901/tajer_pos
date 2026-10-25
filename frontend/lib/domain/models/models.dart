@@ -6,3 +6,4 @@ export 'party.dart';
 export 'product.dart';
 export 'reports.dart';
 export 'settings.dart';
+export 'shopping.dart';

@@ -400,3 +400,26 @@ Json txInputToJson(MoneyTxInput i) => {
       'reference': i.reference,
       'category': i.category,
     };
+
+ShoppingItem shoppingItemFrom(Json j) => ShoppingItem(
+      id: j['id'],
+      productId: j['productId'],
+      name: _s(j['name']),
+      unit: _s(j['unit']),
+      qty: _d(j['qty']),
+      stock: (j['stock'] as num?)?.toDouble(),
+      supplierId: j['supplierId'],
+      supplierName: j['supplierName'],
+      note: _s(j['note']),
+      addedBy: _s(j['addedBy']),
+      createdAt: _date(j['createdAt']),
+    );
+
+Json shoppingInputToJson(ShoppingItemInput i) => {
+      'productId': i.productId,
+      'name': i.name,
+      'unit': i.unit,
+      'qty': i.qty,
+      'supplierId': i.supplierId,
+      'note': i.note,
+    };

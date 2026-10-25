@@ -392,3 +392,88 @@ class LocalCashRepository implements CashRepository {
   @override
   Future<List<CashSession>> getSessions() => _g.read(() => _g.db.sessions.reversed.toList());
 }
+
+class LocalShoppingListRepository implements ShoppingListRepository {
+  LocalShoppingListRepository(this._g);
+  final LocalGateway _g;
+
+  static const _topics = {DataTopic.shopping};
+
+  /// Joins the current product name/unit/stock and supplier name.
+  ShoppingItem _view(ShoppingItem it) {
+    final p = it.productId == null ? null : _g.db.products[it.productId];
+    final s = it.supplierId == null ? null : _g.db.parties[it.supplierId];
+    return ShoppingItem(
+      id: it.id,
+      productId: it.productId,
+      name: p?.name ?? it.name,
+      unit: p?.unit ?? it.unit,
+      qty: it.qty,
+      stock: p?.stock,
+      supplierId: s?.id,
+      supplierName: s?.name,
+      note: it.note,
+      addedBy: it.addedBy,
+      createdAt: it.createdAt,
+    );
+  }
+
+  ShoppingItem _build(String id, ShoppingItemInput i, {required String addedBy, required DateTime createdAt}) {
+    if (i.productId == null && i.name.trim().isEmpty) throw const BusinessException('اكتب اسم الصنف.');
+    if (i.qty <= 0) throw const BusinessException('الكمية يجب أن تكون أكبر من صفر.');
+    return ShoppingItem(
+      id: id,
+      productId: i.productId,
+      name: i.name.trim(),
+      unit: i.unit.trim(),
+      qty: i.qty,
+      supplierId: i.supplierId,
+      note: i.note.trim(),
+      addedBy: addedBy,
+      createdAt: createdAt,
+    );
+  }
+
+  @override
+  Future<List<ShoppingItem>> getItems({String? supplierId}) => _g.read(() => [
+        for (final it in _g.db.shopping.reversed)
+          if (supplierId == null || it.supplierId == null || it.supplierId == supplierId) _view(it),
+      ]);
+
+  @override
+  Future<ShoppingItem> add(ShoppingItemInput input) => _g.write(() {
+        final list = _g.db.shopping;
+        final idx = input.productId == null ? -1 : list.indexWhere((x) => x.productId == input.productId);
+        if (idx >= 0) {
+          final old = list[idx];
+          list[idx] = _build(
+            old.id,
+            ShoppingItemInput(
+              productId: old.productId,
+              qty: old.qty + input.qty,
+              supplierId: input.supplierId ?? old.supplierId,
+              note: input.note.isEmpty ? old.note : input.note,
+            ),
+            addedBy: old.addedBy,
+            createdAt: old.createdAt,
+          );
+          return _view(list[idx]);
+        }
+        final it = _build(_g.db.id('sh'), input, addedBy: _g.db.currentUser?.name ?? '', createdAt: DateTime.now());
+        list.add(it);
+        return _view(it);
+      }, _topics);
+
+  @override
+  Future<ShoppingItem> update(String id, ShoppingItemInput input) => _g.write(() {
+        final list = _g.db.shopping;
+        final idx = list.indexWhere((x) => x.id == id);
+        if (idx < 0) throw const NotFoundException();
+        final old = list[idx];
+        list[idx] = _build(id, input, addedBy: old.addedBy, createdAt: old.createdAt);
+        return _view(list[idx]);
+      }, _topics);
+
+  @override
+  Future<void> remove(List<String> ids) => _g.write(() => _g.db.shopping.removeWhere((x) => ids.contains(x.id)), _topics);
+}

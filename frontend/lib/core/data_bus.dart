@@ -1,7 +1,7 @@
 import 'dart:async';
 
 /// What changed. Read models subscribe to the topics they depend on.
-enum DataTopic { products, parties, invoices, cash, settings, alerts, search }
+enum DataTopic { products, parties, invoices, cash, settings, alerts, search, shopping }
 
 /// Broadcasts data changes after successful mutations so every open screen
 /// refreshes (stock, balances, drawer...). An API implementation can emit the

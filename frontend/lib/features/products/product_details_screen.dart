@@ -15,6 +15,7 @@ import '../common/export.dart';
 import '../common/product_widgets.dart';
 import '../pos/cart_cubit.dart';
 import '../purchases/purchase_form_screen.dart';
+import '../purchases/shopping_list_screen.dart';
 import '../shell/home_shell.dart';
 import 'product_form_screen.dart';
 import 'stock_history_screen.dart';
@@ -54,9 +55,11 @@ class ProductDetailsScreen extends StatelessWidget {
                     onSelected: (v) => switch (v) {
                       'history' => context.push(StockHistoryScreen(product: p)),
                       'adjust' => showStockAdjustSheet(context, p),
+                      'shortage' => showShoppingItemSheet(context, product: p),
                       _ => _printLabel(context, p),
                     },
                     itemBuilder: (_) => [
+                      const PopupMenuItem(value: 'shortage', child: Text('أضف للنواقص')),
                       const PopupMenuItem(value: 'history', child: Text('سجل المخزون')),
                       if (context.perms.canAdjustStock) const PopupMenuItem(value: 'adjust', child: Text('تسوية المخزون')),
                       const PopupMenuItem(value: 'label', child: Text('طباعة ملصق')),
